@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width">
+	<title>Skill Certification</title>
+	<script type="text/javascript" src="/js/jquery-3.1.1.min.js"></script>
+	<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/popper.min.js"></script>
+    <script type="text/javascript" src="/js/mdb.min.js"></script>
+	<script type="text/javascript" src="/js/toastr.min.js"></script>
+	<link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/mdb.min.css" />
+	<link rel="stylesheet" href="/css/common.css" />
+	<link rel="stylesheet" href="/css/toastr.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+</head>
+<body>
+	<div id="header"><%- include views/partial/navbar ; %></div><br/> 
+	<form action="/doGenerateUser" method="post" class="overflow">
+
+        <div class="row">
+            <div class="col-4 text-right">
+                <label for="firstName">Your Name</label>
+            </div>
+            <div class="col-4">
+                <input type="text" name="firstName" class="form-control" id="firstName" placeholder="first name">
+            </div>
+            <div class="col-4">
+                <input type="text" name="lastName" class="form-control" id="lastName" placeholder="last name">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4 text-right">
+                <label for="country">Country</label>
+            </div>
+            <div class="col-8">
+                <input type="text" name="country" class="form-control" id="country" >
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4 text-right">
+                <label for="realAddress">Address</label>
+            </div>
+            <div class="col-8">
+                <input type="text" name="realAddress" class="form-control" id="realAddress" >
+            </div>
+        </div>
+        
+	    <div class="text-center">
+	        <button id="doneButton" class="btn btn-unique">Confirm <i class="fa fa-send ml-1"></i></button>
+	    </div>
+	
+	</form>
+</body>
+</html>

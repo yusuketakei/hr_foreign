@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width">
+	<title>Skill Certification</title>
+	<script type="text/javascript" src="/js/jquery-3.1.1.min.js"></script>
+	<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/popper.min.js"></script>
+    <script type="text/javascript" src="/js/mdb.min.js"></script>
+	<script type="text/javascript" src="/js/toastr.min.js"></script>
+	<link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/mdb.min.css" />
+	<link rel="stylesheet" href="/css/common.css" />
+	<link rel="stylesheet" href="/css/toastr.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+</head>
+<body>
+	<div id="header"><%- include views/partial/navbar ; %></div><br/>
+	<div class="overfloaw">
+    <br/><br/>
+        <table class="table table-striped" id="transactionTable">
+            <thead class="mdb-color indigo darken-4">
+                <tr class="text-white">
+                  <th>Registered Date</th>
+                  <th>Status</th>
+                  <th>Company</th>
+                  <th>Subject</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for (var i = 0; i < skillRecordArray.length; i++) {  %>
+                    <tr onClick="linkToDetail(<%= skillRecordArray[i].id %>) ;">
+                        <td class="">
+                            <%= new Date(parseInt(skillRecordArray[i].createdTimestamp)*1000).toLocaleDateString() %>
+                        </td>
+                        <td class="">
+                            <% if(skillRecordArray[i].status == 0) { %>
+                                Approved
+                            <% } else if(skillRecordArray[i].status == 1) { %>
+                                Please approve
+                            <% } else if(skillRecordArray[i].status == 2) { %>
+                                pending
+                            <% } %>
+                        </td>
+                        <% if(skillRecordArray[i].recordType == 0){ %>
+                            <td class="">
+                                <%= skillRecordArray[i].company %>
+                            </td>
+                            <td class="">
+                                <%= skillRecordArray[i].job %> <%= skillRecordArray[i].position %>
+                            </td>
+                        <% } else if(skillRecordArray[i].recordType == 1){ %>
+                            <td class="">
+                                <%= skillRecordArray[i].company %>
+                            </td>
+                            <td class="">
+                                <%= skillRecordArray[i].job %> <%= skillRecordArray[i].position %>
+                            </td>
+                        <% } else if(skillRecordArray[i].recordType == 2){ %>
+                            <td class="">
+                                <%= skillRecordArray[i].company %>
+                            </td>
+                            <td class="">
+                                <%= skillRecordArray[i].job %> <%= skillRecordArray[i].position %>
+                            </td>
+                        <% } else if(skillRecordArray[i].recordType == 3){ %>
+                            <td class="">
+                                <%= skillRecordArray[i].company %>
+                            </td>
+                            <td class="">
+                                <%= skillRecordArray[i].job %> <%= skillRecordArray[i].position %>
+                            </td>
+                        <% } %>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</body>
+    <script>
+        function linkToDetail(skillRecordId){
+            window.location.href='/getSkillRecord?id=' + skillRecordId ;
+        }
+    </script>
+</html>

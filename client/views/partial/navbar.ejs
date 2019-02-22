@@ -1,0 +1,29 @@
+<!--Navbar-->
+<nav class="navbar navbar-expand-lg navbar-dark indigo">
+
+    <!-- Navbar brand -->
+    <a class="navbar-brand" href="/">Skill Certification</a>
+    <a class="navbar-brand" href="/myAccounts"><i class="fa fa-user" ></i> <%= userInfo.userName %></a>
+
+    <!-- Collapse button -->
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+        aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+        <!-- Links -->
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item <%if(navActive=="/"){ %> active <% } %>">
+                <a class="nav-link" href="/"><i class="fa fa-list" ></i>Transaction<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item <%if(navActive=="/myInfo"){ %> active <% } %>">
+                <a class="nav-link" href="/myAccounts"><i class="fa fa-user" ></i>MyAccounts</a>
+            </li>
+        </ul>
+        <!-- Links -->
+    </div>
+    <!-- Collapsible content -->
+
+</nav>
+<!--/.Navbar-->

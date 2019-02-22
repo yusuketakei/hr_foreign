@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width">
+	<title>Skill Certification</title>
+	<script type="text/javascript" src="/js/jquery-3.1.1.min.js"></script>
+	<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/popper.min.js"></script>
+    <script type="text/javascript" src="/js/mdb.min.js"></script>
+	<script type="text/javascript" src="/js/toastr.min.js"></script>
+	<link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/mdb.min.css" />
+	<link rel="stylesheet" href="/css/common.css" />
+	<link rel="stylesheet" href="/css/toastr.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+</head>
+<body>
+	<div id="header"><%- include views/partial/navbar ; %></div><br/> 
+	<form action="/doRegisterProject" method="post" class="overflow">
+
+        <div class="row">
+            <div class="col-4 text-right">
+                <label for="country">Company</label>
+            </div>
+            <div class="col-8">
+                <input type="text" name="company" class="form-control" id="company" >
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4 text-right">
+                <label for="employeeAddress">Employee Address</label>
+            </div>
+            <div class="col-8">
+                <input type="text" name="employeeAddress" class="form-control" id="employeeAddress" >
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4 text-right">
+                <label for="realAddress">Start Date</label>
+            </div>
+            <div class="col-2">
+                <input type="text" name="startDateYear" class="form-control" id="startDateYear" placeholder="A.D." >
+            </div>
+            <div class="col-1">
+                <p>/</p>
+            </div>
+            <div class="col-2">
+                <input type="text" name="startDateMonth" class="form-control" id="startDateMonth" >
+            </div>
+            <div class="col-1">
+                <p>/</p>
+            </div>
+            <div class="col-2">
+                <input type="text" name="startDateDay" class="form-control" id="startDateDay" >
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4 text-right">
+                <label for="realAddress">End Date</label>
+            </div>
+            <div class="col-2">
+                <input type="text" name="endDateYear" class="form-control" id="endDateYear" placeholder="A.D." >
+            </div>
+            <div class="col-1">
+                <p>/</p>
+            </div>
+            <div class="col-2">
+                <input type="text" name="endDateMonth" class="form-control" id="endDateMonth" >
+            </div>
+            <div class="col-1">
+                <p>/</p>
+            </div>
+            <div class="col-2">
+                <input type="text" name="endDateDay" class="form-control" id="endDateDay" >
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4 text-right">
+                <label for="country">Job</label>
+            </div>
+            <div class="col-8">
+                <input type="text" name="job" class="form-control" id="job" >
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4 text-right">
+                <label for="country">Position</label>
+            </div>
+            <div class="col-8">
+                <input type="text" name="position" class="form-control" id="position" >
+            </div>
+        </div>
+
+	    <div class="text-center">
+	        <button id="doneButton" class="btn btn-unique">Confirm <i class="fa fa-send ml-1"></i></button>
+	    </div>
+	
+	</form>
+</body>
+</html>

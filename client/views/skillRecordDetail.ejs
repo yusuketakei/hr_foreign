@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width">
+	<title>Skill Certification</title>
+	<script type="text/javascript" src="/js/jquery-3.1.1.min.js"></script>
+	<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/popper.min.js"></script>
+    <script type="text/javascript" src="/js/mdb.min.js"></script>
+	<script type="text/javascript" src="/js/toastr.min.js"></script>
+	<link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/mdb.min.css" />
+	<link rel="stylesheet" href="/css/common.css" />
+	<link rel="stylesheet" href="/css/toastr.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+</head>
+<body>
+	<div id="header"><%- include views/partial/navbar ; %></div><br/>
+	<div class="overfloaw">
+    <br/><br/>
+        <table class="table table-striped">
+            <% for (var i = 0; i < skillRecordKeys.length; i++) { %>
+                <tr>
+                        <th class="mdb-color indigo darken-4 text-white"><%= skillRecordKeys[i] %></th>
+                        <td><%= skillRecord[skillRecordKeys[i]] %></td>
+                </tr>                    
+            <% } %>
+        </table>
+    </div>
+    <form action="/approveSkillRecord" method="post" class="overflow">
+        <% if(hasToApprove){ %>
+        <div class="text-center">
+	        <button id="approveButton" class="btn btn-unique">Approve <i class="fa fa-check-circle ml-1"></i></button>
+            <button id="approveButton" class="btn btn-unique">Deny <i class="fa fa-ban ml-1"></i></button>
+            <br/>
+            <div class="row">
+                <div class="col-4 text-right">
+                    <label for="comment">Comment</label>
+                </div>
+                <div class="col-8">
+                    <input type="text" name="comment" class="form-control col-8" id="comment" />
+                </div>
+            </div>
+            <br/><br/>
+        </div>
+        <% } %>
+    </form>
+    </body>
+</html> 

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width">
+	<title>M Transfer</title>
+	<script type="text/javascript" src="/js/jquery-3.1.1.min.js"></script>
+	<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/popper.min.js"></script>
+    <script type="text/javascript" src="/js/mdb.min.js"></script>
+	<script type="text/javascript" src="/js/toastr.min.js"></script>
+	<link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/mdb.min.css" />
+	<link rel="stylesheet" href="/css/common.css" />
+	<link rel="stylesheet" href="/css/toastr.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+</head>
+<body>
+	<div id="header"><%- include views/partial/navbar ; %></div><br/>
+	<div class="overfloaw">
+    <br/><br/>
+        <table class="table table-striped" id="transactionTable">
+            <thead class="mdb-color indigo darken-4">
+                <tr class="text-white">
+                  <th>Date</th>
+                  <th></th>
+                  <th>Counterparty</th>
+                  <th>Princ</th>
+                  <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            <% for (var i = 0; i < transactionInfoList.length; i++) {  %>
+                <% if(transactionInfoList[i].inOutType == 3){ %>
+                    <tr class="clickable-row" onClick="linkToDetail(<%= transactionInfoList[i].transactionId %>) ;">
+                        <td class="">
+                          <%= new Date(transactionInfoList[i].timestamp).toLocaleDateString() %><br/>
+                          <%= new Date(transactionInfoList[i].timestamp).toLocaleTimeString() %>
+                        </td>
+                        <td><i class="fa fa-exchange" aria-hidden="true"><br/>Exch</i></td>
+                        <td><%= transactionInfoList[i].toAccountHolderName %></td>
+                        <td><%= transactionInfoList[i].fromPrinc %><br/><%= transactionInfoList[i].fromCurrency %></td>
+                        <td class="text-right"><i class="fa fa-angle-double-right" aria-hidden="true"></i></td>
+                    </tr>
+                <% } else if(transactionInfoList[i].inOutType == 2){ %>
+                    <tr class="clickable-row" onClick="window.location.href='/transactionDetail?transactionId=<%= transactionInfoList[i].transactionId %>';">
+                        <td class="">
+                          <%= new Date(transactionInfoList[i].timestamp).toLocaleDateString() %><br/>
+                          <%= new Date(transactionInfoList[i].timestamp).toLocaleTimeString() %>
+                        </td>
+                        <td><i class="fa fa-sign-out" aria-hidden="true"><br/>Out</i></td>
+                        <td><%= transactionInfoList[i].toAccountHolderName %></td>
+                        <td><%= transactionInfoList[i].fromPrinc %><br/><%= transactionInfoList[i].fromCurrency %></td>
+                        <td class="text-right"><i class="fa fa-angle-double-right" aria-hidden="true"></i></td>
+                    </tr>            
+                <% } else if(transactionInfoList[i].inOutType == 1){ %>
+                    <tr class="clickable-row" onClick="window.location.href='/transactionDetail?transactionId=<%= transactionInfoList[i].transactionId %>';">
+                        <td class="">
+                          <%= new Date(transactionInfoList[i].timestamp).toLocaleDateString() %><br/>
+                          <%= new Date(transactionInfoList[i].timestamp).toLocaleTimeString() %>
+                        </td>
+                        <td><i class="fa fa-sign-in" aria-hidden="true"><br/>In</i></td>
+                        <td><%= transactionInfoList[i].fromAccountHolderName %></td>
+                        <td><%= transactionInfoList[i].toPrinc %><br/><%= transactionInfoList[i].toCurrency %></td>
+                        <td class="text-right"><i class="fa fa-angle-double-right" aria-hidden="true"></i></td>
+                    </tr>            
+                <% } %>
+            <% } %>
+            </tbody>
+        </table>
+    </div>
+</body>
+    <script>
+        function linkToDetail(transactionId){
+            window.location.href='/transactionDetail?transactionId=' + transactionId ;
+        }
+        
+//        $(document).ready(function(){
+//            $(".timestamp").text(new Date(parseInt($(this).text())).toLocaleString());
+//        });
+    </script>
+</html>

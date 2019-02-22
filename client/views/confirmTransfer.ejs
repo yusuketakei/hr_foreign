@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width">
+	<title>M Transfer</title>
+	<script type="text/javascript" src="/js/jquery-3.1.1.min.js"></script>
+	<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/popper.min.js"></script>
+    <script type="text/javascript" src="/js/mdb.min.js"></script>
+	<script type="text/javascript" src="/js/toastr.min.js"></script>
+	<link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/mdb.min.css" />
+	<link rel="stylesheet" href="/css/common.css" />
+	<link rel="stylesheet" href="/css/toastr.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+</head>
+<body>
+	<div id="header"><%- include views/partial/navbar ; %></div><br/> 
+	<!-- zxingの戻りurlのgetパラメータのデリミタに!を使う -->
+	<form action="/doTransfer" method="post" class="overflow">
+	
+	    <p class="h5 text-center mb-4">Confirm Transfer</p>
+	
+        <div class="row">	
+            <div class="col-4 text-right">
+                <label for="fromAccountNo">YourAccount</label>
+            </div>
+            <div class="col">
+                <input type="text" id="fromAccountNo" name="fromAccountNo" class="form-control" readonly="readonly"
+                       value="<%= transactionInfo.fromAccountNo %>">
+            </div>
+        </div>
+        <div class="row">	
+            <div class="col-4 text-right">
+                <label for="fromAccountHolderName">YourHolder<br/>Name</label><br/>
+            </div>
+            <div class="col">
+                <input type="text" id="fromAccountHolderName" name="fromAccountHolderName" class="form-control" readonly="readonly"
+                       value="<%= transactionInfo.fromAccountHolderName %>">
+            </div>
+        </div>
+        <div class="row">	
+            <div class="col-4 text-right">
+                <label for="toAccountNo">Counterparty<br/>AccountNo</label>
+            </div>
+            <div class="col">
+                <input type="text" id="toAccountNo" name="toAccountNo" class="form-control" readonly="readonly"
+                       value="<%= transactionInfo.toAccountNo %>">
+            </div>
+        </div>
+        <div class="row">	
+            <div class="col-4 text-right">
+                <label for="toAccountNo">Counterparty<br/>AccountName</label>
+            </div>
+            <div class="col">
+                <input type="text" id="toAccountHolderName" name="toAccountHolderName" class="form-control" readonly="readonly"
+                       value="<%= transactionInfo.toAccountHolderName %>">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4 text-right">
+                <label for="toPrinc">Principal</label><br/>
+            </div>
+            <div class="col-5">
+                <input type="text" id="fromPrinc" name="fromPrinc" class="form-control" readonly="readonly" value="<%= transactionInfo.fromPrinc %>">
+            </div>
+            <div class="col-3">
+                <input type="text" name="fromCurrency" class="form-control" id="fromCurrency" readonly="readonly" value="<%= transactionInfo.fromCurrency %>">
+            </div>
+        </div>        
+        	
+	    <div class="text-center">
+	        <button id="doneButton" class="btn btn-unique">Done <i class="fa fa-send ml-1"></i></button>
+	    </div>
+	
+	</form>
+    </body>
+</html>

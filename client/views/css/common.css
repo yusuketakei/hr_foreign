@@ -1,0 +1,23 @@
+@media screen and (min-width:480px){
+	body{
+		font-size:1em;
+	}	
+}
+@media screen and (max-width:480px){
+	body{
+		font-size:1em ;
+	}
+}
+.cbtn{
+    font-size: .8rem;
+	padding: .3rem .5rem;
+    margin: 1px;
+    border-radius: 2px;
+    border: 0;
+    transition: .2s ease-out;
+    white-space: normal!important;
+    cursor: pointer;
+}
+.overflow{
+	overflow:hidden;
+}
