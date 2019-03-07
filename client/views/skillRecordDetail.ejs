@@ -31,8 +31,8 @@
     <form action="/approveSkillRecord" method="post" class="overflow">
         <% if(hasToApprove){ %>
         <div class="text-center">
-	        <button id="approveButton" class="btn btn-unique">Approve <i class="fa fa-check-circle ml-1"></i></button>
-            <button id="approveButton" class="btn btn-unique">Deny <i class="fa fa-ban ml-1"></i></button>
+	        <button name="doApprove" id="approveButton" class="btn btn-unique">Approve <i class="fa fa-check-circle ml-1"></i></button>
+            <button name="doDeny" id="denyButton" class="btn btn-unique">Deny <i class="fa fa-ban ml-1"></i></button>
             <br/>
             <div class="row">
                 <div class="col-4 text-right">

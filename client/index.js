@@ -67,9 +67,9 @@ app.get('/', async (req, res) => {
 
     //SkillRecordsから自分の保持するスキルを取得する(承認前のものも含めて取得)
     var skillRecordArray = await getMySkillRecords(userAddress) ;
-    console.log(skillRecordArray)    
     ejsParams["skillRecordArray"] = skillRecordArray ;
     ejsParams["skillRecordArray.length"] = skillRecordArray.length ;
+    console.log(req.path);
 
     //express4でejsテンプレートを読み込むための呪文
     ejsParams["filename"] = "filename";
@@ -111,8 +111,6 @@ app.get('/registerSkill', async (req, res) => {
         distEjs = "registerQualifi.ejs" ;
     }
 
-    console.log('./views/'+ distEjs);
-
     fs.readFile('./views/'+ distEjs, 'utf-8', function (err, data) {
         renderEjsView(res, data, ejsParams);
     });
@@ -146,10 +144,13 @@ app.post('/doRegisterProject', async (req, res) => {
     ejsParams["filename"] = "filename";
     //navbar用
     ejsParams["navActive"] = "/registerProject";
+
+    //リダイレクト
+    res.redirect(req.baseUrl) ;
     //レンダリング
-    fs.readFile('./views/registerProject.ejs', 'utf-8', function (err, data) {
-        renderEjsView(res, data, ejsParams);
-    });
+    // fs.readFile('./views/registerProject.ejs', 'utf-8', function (err, data) {
+    //     renderEjsView(res, data, ejsParams);
+    // });
 });
 
 //スキルの詳細情報を表示するとともに、自身が承認者の場合承認/否認を可能とする
@@ -191,10 +192,27 @@ app.post('/approveSkillRecord', async (req, res) => {
     var userAddress = await getUserAddressParam(req) ;
     var approveSkillRecordId = req.session.approveSkillRecordId ;
     
+    //approveボタンとdenyボタンのどちらが押されたか判別
+    var isApproved ;
+    if(req.body.hasOwnProperty('doApprove')){
+        //approve
+        isApproved = true ;
+    }else{
+        //deny
+        isApproved = false ;
+    }
+
     res.header('Content-Type', 'text/plain;charset=utf-8');
 
+    //reqからcommentを取り出す
+    var commentJson = {} ;
+    commentJson.comment = req.body.comment ;
+
+    //commentをIPFSに登録
+    var ipfsHash = await writeJsonToIpfs(JSON.stringify(commentJson)) ;
+
     //skillRecordのapproveを実行
-    await approveSkillRecord(skillRecordsContract,approveSkillRecordId,userAddress) ;
+    await approveSkillRecord(skillRecordsContract,approveSkillRecordId,isApproved,userAddress,ipfsHash) ;
 
     //ejsに渡す用のパラメータをセットしてく
     var ejsParams = {};
@@ -204,7 +222,7 @@ app.post('/approveSkillRecord', async (req, res) => {
     //navbar用
     ejsParams["navActive"] = "/registerProject";
     //レンダリング
-    fs.readFile('./views/registerProject.ejs', 'utf-8', function (err, data) {
+    fs.readFile('./views/skillRecordDetail.ejs', 'utf-8', function (err, data) {
         renderEjsView(res, data, ejsParams);
     });
 });
@@ -434,7 +452,6 @@ async function getBasicInfoFromContract(contract,userAddress){
             console.log(err) ;
         }
         //コンバージョンする
-        console.log(result) ;
         basicInfo.userAddress = result[0] ;
         basicInfo.ipfsHash = result[1]
         basicInfo.createdTimestamp = parseInt(result[2],10);
@@ -455,8 +472,8 @@ async function registerSkillRecordToContractByBelongs(contract,userAddress,ipfsH
 }
 
 //Contract上でSkillRecordをapproveする
-async function approveSkillRecord(contract,skillRecordId,userAddress){
-    await contract.methods.generateSkillRecordByBelongs(userAddress,ipfsHash,recordType)
+async function approveSkillRecord(contract,skillRecordId,isApproved,userAddress,ipfsHash){
+    await contract.methods.approve(skillRecordId,isApproved,ipfsHash)
     .send({"from":userAddress,"gas":gas,"gasPrice":0});
 }
 
