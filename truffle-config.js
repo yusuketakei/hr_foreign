@@ -49,14 +49,20 @@ module.exports = {
      gas:0,
      gasPrice:0
     },
+    quorum: {
+      host:"172.31.21.240",
+      port:22000,
+      network_id:"*",
+      gas:4500000,
+      gasPrice:0
+    },
     quorum_external: {
       host:"3.17.14.86",
       port:22000,
       network_id:"*",
-      gas:1000000,
+      gas:4500000,
       gasPrice:0
     }
-
     // Another network with more advanced options...
     // advanced: {
       // port: 8777,             // Custom port
