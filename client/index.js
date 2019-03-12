@@ -24,6 +24,7 @@ const url = require('url');
 const ejs = require('ejs');
 const fs = require('fs');
 const config = require('config');
+console.log(config)
 const logDir = config.log_dir ;
 
 const TYPE_PROJECT = 0 ;
@@ -69,7 +70,6 @@ app.get('/', async (req, res) => {
     var skillRecordArray = await getMySkillRecords(userAddress) ;
     ejsParams["skillRecordArray"] = skillRecordArray ;
     ejsParams["skillRecordArray.length"] = skillRecordArray.length ;
-    console.log(req.path);
 
     //express4でejsテンプレートを読み込むための呪文
     ejsParams["filename"] = "filename";
@@ -146,11 +146,12 @@ app.post('/doRegisterProject', async (req, res) => {
     ejsParams["navActive"] = "/registerProject";
 
     //リダイレクト
-    res.redirect(req.baseUrl) ;
+    // console.log(req.get('host'));
+    // res.redirect(req.get('host')) ;
     //レンダリング
-    // fs.readFile('./views/registerProject.ejs', 'utf-8', function (err, data) {
-    //     renderEjsView(res, data, ejsParams);
-    // });
+    fs.readFile('./views/registerProject.ejs', 'utf-8', function (err, data) {
+        renderEjsView(res, data, ejsParams);
+    });
 });
 
 //スキルの詳細情報を表示するとともに、自身が承認者の場合承認/否認を可能とする
