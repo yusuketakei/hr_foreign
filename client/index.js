@@ -290,10 +290,12 @@ app.post('/doGenerateUser', async (req, res) => {
 
     //IPFSにユーザー情報を書き込み
     var ipfsHash = await writeJsonToIpfs(JSON.stringify(basicInfoToIpfs)) ;
+    console.log(ipfsHash) ;
  
     //書き込んだHashをBasicInfoに登録
     await registerBasicInfoToContract(basicContract,userAddress,ipfsHash) ;
 
+    console.log(ipfsHash);
     //ejsに渡す用のパラメータをセットしてく
     var ejsParams = {};
     ejsParams["userInfo"] = basicInfoToIpfs ;
