@@ -50,14 +50,14 @@ module.exports = {
      gasPrice:0
     },
     quorum: {
-      host:"172.31.21.240",
+      host:"172.31.3.86",
       port:22000,
       network_id:"*",
       gas:4500000,
       gasPrice:0
     },
     quorum_external: {
-      host:"3.17.14.86",
+      host:"18.220.206.78",
       port:22000,
       network_id:"*",
       gas:4500000,

@@ -1,6 +1,6 @@
 {
     "log_dir": "./",
-    "geth_url": "http://172.31.21.240:22000",
+    "geth_url": "http://172.31.3.86:22000",
     "from_address":"0x48f7fe38ab00494cbcb425b4c940d22977e97fdd",
     "gas":1000000,
     "contract_basic_address":"0xadfce9ba88c6f888c4bb4c88417fc0602b9bda46",
