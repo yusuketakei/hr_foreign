@@ -146,12 +146,7 @@ app.post('/doRegisterProject', async (req, res) => {
     ejsParams["navActive"] = "/registerProject";
 
     //リダイレクト
-    // console.log(req.get('host'));
-    // res.redirect(req.get('host')) ;
-    //レンダリング
-    fs.readFile('./views/registerProject.ejs', 'utf-8', function (err, data) {
-        renderEjsView(res, data, ejsParams);
-    });
+    return res.redirect('/');
 });
 
 //スキルの詳細情報を表示するとともに、自身が承認者の場合承認/否認を可能とする
@@ -222,12 +217,11 @@ app.post('/approveSkillRecord', async (req, res) => {
     ejsParams["filename"] = "filename";
     //navbar用
     ejsParams["navActive"] = "/registerProject";
-    //レンダリング
-    fs.readFile('./views/skillRecordDetail.ejs', 'utf-8', function (err, data) {
-        renderEjsView(res, data, ejsParams);
-    });
-});
 
+    //リダイレクト
+    return res.redirect('/');
+
+});
 
 app.get('/myInfo', async (req, res) => {
     var userAddress = await getUserAddressParam(req) ;
@@ -307,10 +301,10 @@ app.post('/doGenerateUser', async (req, res) => {
     ejsParams["filename"] = "filename";
     //navbar用
     ejsParams["navActive"] = "/generateUser";
-    //レンダリング
-    fs.readFile('./views/generateUser.ejs', 'utf-8', function (err, data) {
-        renderEjsView(res, data, ejsParams);
-    });
+
+    //リダイレクト
+    return res.redirect('/');
+
 });
 
 

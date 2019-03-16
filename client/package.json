@@ -11,7 +11,7 @@
     "jquery": "latest",
     "request": "^2.83.0",
     "url": "~0.11.0",
-    "web3": "^1.0.0-beta.29"
+    "web3": "^1.0.0-beta.48"
   },
   "description": "",
   "main": "index.js",
