@@ -32,7 +32,7 @@
                 <% for (var i = 0; i < skillRecordArray.length; i++) {  %>
                     <tr onClick="linkToDetail(<%= skillRecordArray[i].id %>) ;">
                         <td class="">
-                            <%= new Date(parseInt(skillRecordArray[i].createdTimestamp)*1000).toLocaleDateString() %>
+                            <%= new Date(parseInt(skillRecordArray[i].createdTimestamp)).toLocaleDateString() %>
                         </td>
                         <td class="">
                             <% if(skillRecordArray[i].status == 0) { %>

@@ -407,8 +407,8 @@ async function getSkillRecordFromContractById(contract,id){
         skillRecord.ipfsHash = result[1]
         skillRecord.recordType = parseInt(result[2],10);
         skillRecord.status = parseInt(result[3],10);
-        skillRecord.createdTimestamp = parseInt(result[4],10);
-        skillRecord.createdTimestamp = parseInt(result[5],10);
+        skillRecord.createdTimestamp = getEpochTimeFromBlockTimestamp(parseInt(result[4],10));
+        skillRecord.createdTimestamp = getEpochTimeFromBlockTimestamp(parseInt(result[5],10));
     }) ;
     return skillRecord ;
 }
@@ -425,8 +425,8 @@ async function getWorkflowFromContractById(contract,id){
         workflow.approveAddress = result[1] ;
         workflow.commentIpfsHash = result[2] ;
         workflow.isApproved = result[3] ;
-        workflow.generatedTimestamp = parseInt(result[4],10);
-        workflow.approvedTimestamp = parseInt(result[5],10);
+        workflow.generatedTimestamp = getEpochTimeFromBlockTimestamp(parseInt(result[4],10));
+        workflow.approvedTimestamp = getEpochTimeFromBlockTimestamp(parseInt(result[5],10));
     }) ;
 
     return workflow ;
@@ -442,8 +442,8 @@ async function getBasicInfoFromContract(contract,userAddress){
         //コンバージョンする
         basicInfo.userAddress = result[0] ;
         basicInfo.ipfsHash = result[1]
-        basicInfo.createdTimestamp = parseInt(result[2],10);
-        basicInfo.createdTimestamp = parseInt(result[3],10);
+        basicInfo.createdTimestamp = getEpochTimeFromBlockTimestamp(parseInt(result[2],10));
+        basicInfo.createdTimestamp = getEpochTimeFromBlockTimestamp(parseInt(result[3],10));
     }) ;
     return basicInfo ;
 }
@@ -518,6 +518,11 @@ function formatDateYYYYMMDD(yearStr,monthStr,dayStr){
     var monthPart = ('00' + monthStr).slice(-2);
     var dayPart = ('00' + dayStr).slice(-2);
     return yearPart + monthPart + dayPart;
+}
+
+//block timestampからepochの日時(msec単位)を取得する
+function getEpochTimeFromBlockTimestamp(blockTimeStamp){
+	return blockTimeStamp.toString().substr(0,10) + "000" ;
 }
 
 //ejs render
