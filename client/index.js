@@ -89,14 +89,11 @@ app.get('/', async (req, res) => {
     });
 });
 
-app.get('/registerSkill', async (req, res) => {
+app.get('/registerProject', async (req, res) => {
     const wallet = new ethers.Wallet(req.body.privateKey,rpcProvider) ;
 
-    //skill recordのtypeをクエリから取得
-    var url_parts = url.parse(req.url, true);
-    var recordType = url_parts.query.recordType ;
+    var recordType = TYPE_PROJECT ;
     
-    res.header('Content-Type', 'text/plain;charset=utf-8');
     //パラメータを設定してejsをレンダリング
     //ejsに渡す用のパラメータをセットしてく
     var ejsParams = {};
@@ -106,20 +103,9 @@ app.get('/registerSkill', async (req, res) => {
     //express4でejsテンプレートを読み込むための呪文
     ejsParams["filename"] = "filename";
     //navbar用
-    ejsParams["navActive"] = "/";
-    //レンダリング recordTypeによって表示切替
-    var distEjs ;
-    if(recordType == TYPE_PROJECT){
-        distEjs = "registerProject.ejs" ;
-    }else if(recordType == TYPE_EDU){
-        distEjs = "registerEdu.ejs" ;
-    }else if(recordType == TYPE_SKILL){
-        distEjs = "registerSkill.ejs" ;
-    }else if(recordType == TYPE_QUALIFI){
-        distEjs = "registerQualifi.ejs" ;
-    }
+    ejsParams["navActive"] = "/registerProject";
 
-    fs.readFile('./views/'+ distEjs, 'utf-8', function (err, data) {
+    fs.readFile('./views/registerProject.ejs', 'utf-8', function (err, data) {
         renderEjsView(res, data, ejsParams);
     });
 });
@@ -237,6 +223,7 @@ app.get('/myInfo', async (req, res) => {
     var ejsParams = {};
 
     ejsParams["userInfo"] = await getUserInfo(wallet.address) ;
+    ejsParams["userInfo"].userId = req.body.userId ;
     
     //express4でejsテンプレートを読み込むための呪文
     ejsParams["filename"] = "filename";

@@ -3,7 +3,7 @@
 
     <!-- Navbar brand -->
     <a class="navbar-brand" href="/">Skill Certification</a>
-    <a class="navbar-brand" href="/myAccounts"><i class="fa fa-user" ></i> <%= userInfo.userName %></a>
+    <a class="navbar-brand" href="/myInfo"><i class="fa fa-user" ></i> <%= userInfo.userName %></a>
 
     <!-- Collapse button -->
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
@@ -18,7 +18,10 @@
                 <a class="nav-link" href="/"><i class="fa fa-list" ></i>Transaction<span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item <%if(navActive=="/myInfo"){ %> active <% } %>">
-                <a class="nav-link" href="/myAccounts"><i class="fa fa-user" ></i>MyAccounts</a>
+                <a class="nav-link" href="/myInfo"><i class="fa fa-user" ></i>myInfo</a>
+            </li>
+            <li class="nav-item <%if(navActive=="/registerProject"){ %> active <% } %>">
+                <a class="nav-link" href="/registerProject"><i class="fa fa-building" ></i>Project</a>
             </li>
         </ul>
         <!-- Links -->
