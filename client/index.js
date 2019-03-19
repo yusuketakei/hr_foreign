@@ -24,7 +24,6 @@ const url = require('url');
 const ejs = require('ejs');
 const fs = require('fs');
 const config = require('config');
-console.log(config)
 const logDir = config.log_dir ;
 
 const TYPE_PROJECT = 0 ;
@@ -40,7 +39,11 @@ const STATUS_INVALID = 9;
 
 //geth rpc設定
 const Web3 = require('web3');
-var web3 = new Web3(new Web3.providers.HttpProvider(config.geth_url));
+const web3 = new Web3(new Web3.providers.HttpProvider(config.geth_url));
+
+//web3 libralies instead of web3.js
+const ethers = require('ethers') ;
+const rpcProvider = new ethers.providers.JsonRpcProvider(config.geth_url);
 
 //IPFS API Client設定
 const ipfsClient = require('ipfs-http-client');
@@ -55,19 +58,24 @@ const gas = config.gas ;
 var basicContract = new web3.eth.Contract(config.contract_basic_abi,config.contract_basic_address,{from:fromAddress});
 var skillRecordsContract = new web3.eth.Contract(config.contract_skillRecords_abi,config.contract_skillRecords_address,{from:fromAddress});
 
+app.all('*',function(req, res, next){
+    res.header('Content-Type', 'text/plain;charset=utf-8');
+    req.body.userId = getUserId(req) ;
+    req.body.privateKey = getPrivateKeyByUserId(req.body.userId) ;
+    next();
+  }) ;
 //一覧処理のget処理
 app.get('/', async (req, res) => {
-    var userAddress = await getUserAddressParam(req) ;
-    
-    res.header('Content-Type', 'text/plain;charset=utf-8');
+    const wallet = new ethers.Wallet(req.body.privateKey,rpcProvider) ;
+
     //パラメータを設定してejsをレンダリング
     //ejsに渡す用のパラメータをセットしてく
     var ejsParams = {};
 
-    ejsParams["userInfo"] = await getUserInfo(userAddress) ;
+    ejsParams["userInfo"] = await getUserInfo(wallet.address) ;
 
     //SkillRecordsから自分の保持するスキルを取得する(承認前のものも含めて取得)
-    var skillRecordArray = await getMySkillRecords(userAddress) ;
+    var skillRecordArray = await getMySkillRecords(wallet.address) ;
     ejsParams["skillRecordArray"] = skillRecordArray ;
     ejsParams["skillRecordArray.length"] = skillRecordArray.length ;
 
@@ -82,7 +90,7 @@ app.get('/', async (req, res) => {
 });
 
 app.get('/registerSkill', async (req, res) => {
-    var userAddress = await getUserAddressParam(req) ;
+    const wallet = new ethers.Wallet(req.body.privateKey,rpcProvider) ;
 
     //skill recordのtypeをクエリから取得
     var url_parts = url.parse(req.url, true);
@@ -93,7 +101,7 @@ app.get('/registerSkill', async (req, res) => {
     //ejsに渡す用のパラメータをセットしてく
     var ejsParams = {};
 
-    ejsParams["userInfo"] = await getUserInfo(userAddress) ;
+    ejsParams["userInfo"] = await getUserInfo(wallet.address) ;
 
     //express4でejsテンプレートを読み込むための呪文
     ejsParams["filename"] = "filename";
@@ -117,11 +125,9 @@ app.get('/registerSkill', async (req, res) => {
 });
 
 app.post('/doRegisterProject', async (req, res) => {
-    //セッションからuser addressを取得
-    var userAddress = await getUserAddressParam(req) ;
+    //walletの生成
+    const wallet = new ethers.Wallet(req.body.privateKey,rpcProvider) ;
     
-    res.header('Content-Type', 'text/plain;charset=utf-8');
-
     //登録する情報の取得
     var skillRecordToIpfs = {} ;
     skillRecordToIpfs.company = req.body.company ;
@@ -129,17 +135,18 @@ app.post('/doRegisterProject', async (req, res) => {
     skillRecordToIpfs.endDate = formatDateYYYYMMDD(req.body.endDateYear,req.body.endDateMonth,req.body.endDateDay) ;
     skillRecordToIpfs.job = req.body.job ;
     skillRecordToIpfs.position = req.body.position ;
-    skillRecordToIpfs.userAddress = req.body.employeeAddress ;
+    var employeeAddress = new ethers.Wallet(getPrivateKeyByUserId(req.body.employeeUserId)).address ;
+    skillRecordToIpfs.userAddress = employeeAddress ;
 
     //IPFSにユーザー情報を書き込み
     var ipfsHash = await writeJsonToIpfs(JSON.stringify(skillRecordToIpfs)) ;
  
     //書き込んだHashをBasicInfoに登録
-    await registerSkillRecordToContractByBelongs(skillRecordsContract,req.body.employeeAddress,ipfsHash,TYPE_PROJECT,userAddress) ;
+    await registerSkillRecordToContractByBelongs(skillRecordsContract,wallet,employeeAddress,ipfsHash,TYPE_PROJECT) ;
 
     //ejsに渡す用のパラメータをセットしてく
     var ejsParams = {};
-    ejsParams["userInfo"] = await getUserInfo(userAddress) ;
+    ejsParams["userInfo"] = await getUserInfo(wallet.address) ;
     //express4でejsテンプレートを読み込むための呪文
     ejsParams["filename"] = "filename";
     //navbar用
@@ -151,7 +158,7 @@ app.post('/doRegisterProject', async (req, res) => {
 
 //スキルの詳細情報を表示するとともに、自身が承認者の場合承認/否認を可能とする
 app.get('/getSkillRecord', async (req, res) => {
-    var userAddress = await getUserAddressParam(req) ;
+    const wallet = new ethers.Wallet(req.body.privateKey,rpcProvider) ;
     
     //skill recordのidをクエリから取得
     var url_parts = url.parse(req.url, true);
@@ -160,7 +167,6 @@ app.get('/getSkillRecord', async (req, res) => {
     //詳細画面でのApprove実行用にSessionにskillRecordIdを持たせておく
     req.session.approveSkillRecordId = id ;
 
-    res.header('Content-Type', 'text/plain;charset=utf-8');
     //パラメータを設定してejsをレンダリング
     //ejsに渡す用のパラメータをセットしてく
     var ejsParams = {};
@@ -169,9 +175,9 @@ app.get('/getSkillRecord', async (req, res) => {
     ejsParams["skillRecordKeys"] = Object.keys(ejsParams["skillRecord"]) ;
 
     //自分自身が承認者(Approver)かどうか確認、スタータスが未承認であればapproveが必要
-    ejsParams["hasToApprove"] = hasToApprove(ejsParams["skillRecord"].status,await isWorkflowApprover(id,userAddress)) ;
+    ejsParams["hasToApprove"] = hasToApprove(ejsParams["skillRecord"].status,await isWorkflowApprover(id,wallet.address)) ;
 
-    ejsParams["userInfo"] = await getUserInfo(userAddress) ;
+    ejsParams["userInfo"] = await getUserInfo(wallet.address) ;
     
     //express4でejsテンプレートを読み込むための呪文
     ejsParams["filename"] = "filename";
@@ -184,8 +190,10 @@ app.get('/getSkillRecord', async (req, res) => {
 });
 
 app.post('/approveSkillRecord', async (req, res) => {
-    //セッションからuser addressとapprove用のskillRecordIdを取得
-    var userAddress = await getUserAddressParam(req) ;
+    //walletの生成
+    const wallet = new ethers.Wallet(req.body.privateKey,rpcProvider) ;
+
+    //セッションからとapprove用のskillRecordIdを取得
     var approveSkillRecordId = req.session.approveSkillRecordId ;
     
     //approveボタンとdenyボタンのどちらが押されたか判別
@@ -198,8 +206,6 @@ app.post('/approveSkillRecord', async (req, res) => {
         isApproved = false ;
     }
 
-    res.header('Content-Type', 'text/plain;charset=utf-8');
-
     //reqからcommentを取り出す
     var commentJson = {} ;
     commentJson.comment = req.body.comment ;
@@ -208,11 +214,11 @@ app.post('/approveSkillRecord', async (req, res) => {
     var ipfsHash = await writeJsonToIpfs(JSON.stringify(commentJson)) ;
 
     //skillRecordのapproveを実行
-    await approveSkillRecord(skillRecordsContract,approveSkillRecordId,isApproved,userAddress,ipfsHash) ;
+    await approveSkillRecord(skillRecordsContract,wallet,approveSkillRecordId,isApproved,wallet.address,ipfsHash) ;
 
     //ejsに渡す用のパラメータをセットしてく
     var ejsParams = {};
-    ejsParams["userInfo"] = await getUserInfo(userAddress) ;
+    ejsParams["userInfo"] = await getUserInfo(wallet.address) ;
     //express4でejsテンプレートを読み込むための呪文
     ejsParams["filename"] = "filename";
     //navbar用
@@ -224,14 +230,13 @@ app.post('/approveSkillRecord', async (req, res) => {
 });
 
 app.get('/myInfo', async (req, res) => {
-    var userAddress = await getUserAddressParam(req) ;
+    const wallet = new ethers.Wallet(req.body.privateKey,rpcProvider) ;
     
-    res.header('Content-Type', 'text/plain;charset=utf-8');
     //パラメータを設定してejsをレンダリング
     //ejsに渡す用のパラメータをセットしてく
     var ejsParams = {};
 
-    ejsParams["userInfo"] = await getUserInfo(userAddress) ;
+    ejsParams["userInfo"] = await getUserInfo(wallet.address) ;
     
     //express4でejsテンプレートを読み込むための呪文
     ejsParams["filename"] = "filename";
@@ -244,10 +249,8 @@ app.get('/myInfo', async (req, res) => {
 });
 
 app.get('/generateUser', async (req, res) => {
-    //本来は秘密鍵の生成から
-    var userAddress = await getUserAddressParam(req) ;
+    const wallet = new ethers.Wallet(req.body.privateKey,rpcProvider) ;
     
-    res.header('Content-Type', 'text/plain;charset=utf-8');
     //パラメータを設定してejsをレンダリング
     //ejsに渡す用のパラメータをセットしてく
     var ejsParams = {};
@@ -268,11 +271,9 @@ app.get('/generateUser', async (req, res) => {
 });
 
 app.post('/doGenerateUser', async (req, res) => {
-    //セッションからuser addressを取得
-    var userAddress = await getUserAddressParam(req) ;
+    //walletの生成
+    const wallet = new ethers.Wallet(req.body.privateKey,rpcProvider) ;
     
-    res.header('Content-Type', 'text/plain;charset=utf-8');
-
     //登録する情報の取得
     var basicInfoToIpfs = {} ;
     basicInfoToIpfs.firstName = req.body.firstName ;
@@ -280,20 +281,14 @@ app.post('/doGenerateUser', async (req, res) => {
     basicInfoToIpfs.country = req.body.country ;
     basicInfoToIpfs.realAddress = req.body.realAddress ;
     basicInfoToIpfs.userName = req.body.firstName + " " + req.body.lastName ;
-    basicInfoToIpfs.userAddress = userAddress ;
-
-    console.log("position1 " + (new Date()).toString()) ;
+    basicInfoToIpfs.userAddress = wallet.address ;
 
     //IPFSにユーザー情報を書き込み
     var ipfsHash = await writeJsonToIpfs(JSON.stringify(basicInfoToIpfs)) ;
-    console.log("position2 " + (new Date()).toString()) ;
  
     //書き込んだHashをBasicInfoに登録
-    await registerBasicInfoToContract(basicContract,userAddress,ipfsHash) ;
+    var result = await registerBasicInfoToContract(basicContract,wallet,ipfsHash) ;
 
-    console.log("position3 " + (new Date()).toString()) ;
-
-    console.log(ipfsHash);
     //ejsに渡す用のパラメータをセットしてく
     var ejsParams = {};
     ejsParams["userInfo"] = basicInfoToIpfs ;
@@ -307,36 +302,41 @@ app.post('/doGenerateUser', async (req, res) => {
 
 });
 
-
-//userAddressを取得
-async function getUserAddressParam(req){
-    //demo用 user idからアドレスを取得する
-
+//userIdを取得
+function getUserId(req){
     //getパラメータを取得
     var url_parts = url.parse(req.url, true);
 
+    var userId ;
     if (url_parts.query.userId){
-        var userAddress = config.user_map[url_parts.query.userId];
-        req.session.userAddress = userAddress ;        
+        userId = url_parts.query.userId ;
+        req.session.userId = userId ;
     }
     //sessionからaccountを取得
-    else if (req.session.userAddress) {
-        var userAddress = req.session.userAddress;
-    } 
-    else {
-        var userAddress = "";
+    else if (req.session.userId) {
+        userId = req.session.userId;
     }
-    return userAddress ;
+    return userId ;
+}
+
+//private keyを取得
+function getPrivateKeyByUserId(userId){
+    return config.user_map[userId] ;
 }
 
 //対象userAddressによるApproveが必要かどうか確認する
-function hasToApprove(status,userAddress){
+function hasToApprove(status,isWorkflowApprover){
     if(status == STATUS_APPROVED){
         return false ;
     }else if(status == STATUS_INVALID){
         return false ;
     }else{
-        return true ;
+        if(isWorkflowApprover){
+            return true ;
+        }
+        else{
+            return false ;
+        }
     }
 }
 
@@ -461,21 +461,47 @@ async function getBasicInfoFromContract(contract,userAddress){
     return basicInfo ;
 }
 
+
 //ContractにbasicInfoを登録する
-async function registerBasicInfoToContract(contract,userAddress,ipfsHash){
-    await contract.methods.createUser(ipfsHash).send({"from":userAddress,"gas":gas,"gasPrice":0});
+//pkを使ってsendするバージョン
+async function registerBasicInfoToContract(contract,wallet,ipfsHash){
+    const contractTxObj = contract.methods.createUser(ipfsHash) ;
+    await sendContractTxObjWithPK(contract,contractTxObj,wallet) ;
 }
 
 //Contractにskill recordを登録する
-async function registerSkillRecordToContractByBelongs(contract,userAddress,ipfsHash,recordType,senderAddress){
-    await contract.methods.generateSkillRecordByBelongs(userAddress,ipfsHash,recordType)
-    .send({"from":senderAddress,"gas":gas,"gasPrice":0});
+async function registerSkillRecordToContractByBelongs(contract,wallet,userAddress,ipfsHash,recordType){
+    const contractTxObj = contract.methods.generateSkillRecordByBelongs(userAddress,ipfsHash,recordType) ;
+    await sendContractTxObjWithPK(contract,contractTxObj,wallet) ;
 }
 
 //Contract上でSkillRecordをapproveする
-async function approveSkillRecord(contract,skillRecordId,isApproved,userAddress,ipfsHash){
-    await contract.methods.approve(skillRecordId,isApproved,ipfsHash)
-    .send({"from":userAddress,"gas":gas,"gasPrice":0});
+async function approveSkillRecord(contract,wallet,skillRecordId,isApproved,ipfsHash){
+    const contractTxObj = contract.methods.approve(skillRecordId,isApproved,ipfsHash) ;
+    await sendContractTxObjWithPK(contract,contractTxObj,wallet) ;
+}
+
+//ContractのMethodsを特定のPrivate Keyを使ってSendする
+//contractTxObj=contract.methods.myMethods(any parameter)
+async function sendContractTxObjWithPK(contract,contractTxObj,wallet){
+    //nonce の取得
+    const nonce = await wallet.getTransactionCount() ;
+    //transaction objの生成
+    const tx = {
+        nonce,
+        gasPrice: config.gas_price,
+        gasLimit: config.gas,
+        chainId: config.chain_id,
+        to: contract.options.address,
+        value: 0
+    } ;
+    tx.data = await contractTxObj.encodeABI() ;
+
+    //sign transaction
+    const signedTx = await wallet.sign(tx) ;
+
+    //send Signed Transaction
+    return await wallet.provider.sendTransaction(signedTx) ;
 }
 
 //IPFSへのJSONデータ出力(hashを返す)
@@ -486,9 +512,17 @@ async function writeJsonToIpfs(jsonData){
 }
 
 async function readJsonFromIpfs(hash){
+    if(!validateForIpfsHash(hash)){
+        return {} ;
+    } 
     //IPFS hashからJSONファイルを読み込む
     var data = await ipfs.cat(hash);
     return JSON.parse(data.toString()) ;
+}
+
+//IPFS Hash validate
+function validateForIpfsHash(ipfsHash){
+    return ipfsHash.slice(0,2) == "Qm" && ipfsHash.length > 2;
 }
 
 //日付format

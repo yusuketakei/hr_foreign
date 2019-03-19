@@ -3,15 +3,18 @@
     "geth_url": "http://localhost:8545",
     "from_address":"0x30383cc6c9045d033f78d10009a9e618177cb1aa",
     "gas":1000000,
+    "gas_price":0,
+    "chain_id":12345,
     "contract_basic_address":"0x43f8b3bae76C8FB89E1d6d60aF487803e6642b91",
     "contract_basic_abi":[{"anonymous":false,"inputs":[{"indexed":false,"name":"userAddress","type":"address"},{"indexed":false,"name":"ipfsHash","type":"string"}],"name":"CreateUser","type":"event","signature":"0x7af318d5bd6365b7d40b505f244d54e2c4f1ce2b230b107b8cbdfdd2f86cafbc"},{"constant":false,"inputs":[{"name":"_ipfsHash","type":"string"}],"name":"createUser","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function","signature":"0x507ffba5"},{"constant":false,"inputs":[{"name":"_ipfsHash","type":"string"}],"name":"modifyUserInfo","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function","signature":"0x5a99143d"},{"constant":true,"inputs":[{"name":"_userAddress","type":"address"}],"name":"getUserInfo","outputs":[{"name":"","type":"address"},{"name":"","type":"string"},{"name":"","type":"uint256"},{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function","signature":"0x6386c1c7"}],
     "contract_skillRecords_address":"0x08586150adef5a9E3D9a2852C1B814700258Be0F",
     "contract_skillRecords_abi":[{"constant":false,"inputs":[{"name":"_userAddress","type":"address"},{"name":"_ipfsHash","type":"string"},{"name":"_recordType","type":"uint8"}],"name":"generateSkillRecordByBelongs","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function","signature":"0x02da14fb"},{"constant":false,"inputs":[{"name":"_belongsAddress","type":"address"},{"name":"_ipfsHash","type":"string"},{"name":"_recordType","type":"uint8"}],"name":"generateSkillRecordByUser","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function","signature":"0x4b1fe48d"},{"constant":false,"inputs":[{"name":"_id","type":"uint256"},{"name":"_isApproved","type":"bool"},{"name":"_commentIpfsHash","type":"string"}],"name":"approve","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function","signature":"0xa4ef4f06"},{"constant":true,"inputs":[{"name":"_id","type":"uint256"}],"name":"getSkillRecord","outputs":[{"name":"","type":"address"},{"name":"","type":"string"},{"name":"","type":"uint8"},{"name":"","type":"uint8"},{"name":"","type":"uint256"},{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function","signature":"0x90760da4"},{"constant":true,"inputs":[{"name":"_id","type":"uint256"}],"name":"getWorkFlow","outputs":[{"name":"","type":"address"},{"name":"","type":"address"},{"name":"","type":"string"},{"name":"","type":"bool"},{"name":"","type":"uint256"},{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function","signature":"0xd61c48b8"},{"constant":true,"inputs":[],"name":"getMySkillRecords","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function","signature":"0x1beb52f7"},{"constant":true,"inputs":[],"name":"getPendingWorkFlowsByApprover","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function","signature":"0x9d75c959"},{"constant":true,"inputs":[],"name":"getGeneratedWorkFlows","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function","signature":"0x1b1b2650"}],
     "user_map":[
-        "0x30383cc6c9045d033f78d10009a9e618177cb1aa",
-        "0x3b475351526f13e24a5a4b1c0a82333e485697f5",
-        "0x59b314dd4c96f65002a018cda1069b0867407eb0"
-    ]
+        "61A407C5A7441249071FFFEEE293383828C0C7E5C5A572DE549F8988A5AECBF1",
+        "37BBC2B9E6E1177FFFBAC0617906FCB5810430FBB069767C91DB826CCB3D8AA6",
+        "F266D319FD742C4B4E46878578CBBA64A975C7F685444A63DC3C93F4726D7555",
+        "D6AC6862E9376D33009E4B031BE03ABBFB4937C6409F2F61E1EB70AF264194DC"
+    ],
     //var basicContract = new web3.eth.Contract(abi,address);
     //var skillContract = new web3.eth.Contract(abi,address);
 }
