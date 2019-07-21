@@ -10,6 +10,7 @@
     "express-session": "^1.15.6",
     "ipfs-http-client": "^29.1.1",
     "jquery": "latest",
+    "mysql": "^2.16.0",
     "request": "^2.83.0",
     "url": "~0.11.0",
     "web3": "^1.0.0-beta.48"

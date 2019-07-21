@@ -14,6 +14,13 @@
         "37BBC2B9E6E1177FFFBAC0617906FCB5810430FBB069767C91DB826CCB3D8AA6",
         "F266D319FD742C4B4E46878578CBBA64A975C7F685444A63DC3C93F4726D7555",
         "D6AC6862E9376D33009E4B031BE03ABBFB4937C6409F2F61E1EB70AF264194DC"
-    ]
+    ],
+    "mysql_con_options":{
+        "user": "root",
+        "password": "Passw0rd",
+        "database": "hr",
+        "host":"hr.ch2hrwq7kpdo.us-east-2.rds.amazonaws.com",
+        "port": 3306
+    }
 }
 

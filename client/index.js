@@ -23,6 +23,8 @@ app.use(session({
 const url = require('url');
 const ejs = require('ejs');
 const fs = require('fs');
+const crypto = require('crypto');
+const hash = crypto.createHash('sha256');
 const config = require('config');
 const logDir = config.log_dir ;
 
@@ -58,9 +60,53 @@ const gas = config.gas ;
 var basicContract = new web3.eth.Contract(config.contract_basic_abi,config.contract_basic_address,{from:fromAddress});
 var skillRecordsContract = new web3.eth.Contract(config.contract_skillRecords_abi,config.contract_skillRecords_address,{from:fromAddress});
 
+//mysql database設定
+const mysql = require('mysql');
+const connection = mysql.createConnection(config.mysql_con_options);
+
+testCrypto() ;
+
+//暗号テスト
+async function testCrypto(){
+    const password = "password" ;
+    const testText =  JSON.stringify({ 
+        userAddress:"userAddress" ,
+        content1:"testtesttest" ,
+        content2:"testtesttestetestestes"
+    }) ;
+    //@note
+    //saltのみDBに保存し、passwordはユーザーから聞く
+    //ユーザーパスワード(本来はprivate keyで暗号化)->32bytes hash ->+salt -> common key
+    //これによりsaltを公開しても問題ない？
+    //common keyをprivate transactionで送る -> ×
+    //private transactionの場合、nodeの保有者に内容が漏れてしまう
+    //contract上に受け取り側のpublic keyを登録しておく
+    //送る側がそのpublic keyで暗号化したcommon keyをブロックチェーン経由で伝達
+    //private transactionである必要があるか？ 一旦public transaction前提で。
+    //受け取り側がリクエスト情報をBlockchainに書き込み -> 欲しい人のアドレスを特定しておき、addressを指定する
+    //指定されたaddressの人だけがレスポンスとしてcommon keyをupdateする
+    //addressを一回知ると、その後のその人の応募などがすべて筒抜けになってしまうのでは？
+    //->一旦、public keyで暗号化したcommon key をQRコードで表示して渡すようにする
+    //common key -> 相手のpublic keyで暗号化 -> jwtで署名
+    const wallet = new ethers.Wallet(getPrivateKeyByUserId(0),rpcProvider) ;
+    const signedPassword = await wallet.signMessage(password) ;
+    const sha256Password = generateSha256Password(signedPassword) ;
+    const salt = generateSalt() ;
+    const key1 = generateAes256Key(sha256Password,salt) ;
+    const encrypted = encryptoAes256Cbc(testText,key1) ;
+    //saltをデータベースに登録
+    insertUserKeyMaster(userId,recordId,salt);
+
+    const decrypted = decryptoAes256Cbc(encrypted,key1) ;
+    console.log(decrypted) ;
+}
+
 app.all('*',function(req, res, next){
     res.header('Content-Type', 'text/plain;charset=utf-8');
     req.body.userId = getUserId(req) ;
+    //@note
+    //private keyは本来、ユーザ側で管理させたいが、
+    //一旦、サーバ側で生成・管理するようにする
     req.body.privateKey = getPrivateKeyByUserId(req.body.userId) ;
     next();
   }) ;
@@ -123,6 +169,12 @@ app.post('/doRegisterProject', async (req, res) => {
     skillRecordToIpfs.position = req.body.position ;
     var employeeAddress = new ethers.Wallet(getPrivateKeyByUserId(req.body.employeeUserId)).address ;
     skillRecordToIpfs.userAddress = employeeAddress ;
+
+    //IPFSに書き込む情報の暗号化とそのキーの取得、保存
+
+
+    //暗号キーの取得
+    
 
     //IPFSにユーザー情報を書き込み
     var ipfsHash = await writeJsonToIpfs(JSON.stringify(skillRecordToIpfs)) ;
@@ -448,11 +500,28 @@ async function getBasicInfoFromContract(contract,userAddress){
     return basicInfo ;
 }
 
+//Contractからpub keyを取得する
+async function getPubkeyFromContract(contract,userAddress){
+    var basicInfo = {}
+    await contract.methods.getUserPubkey(userAddress).call({},function(err,result){
+        if(err){
+            console.log(err) ;
+        }
+        //コンバージョンする
+        basicInfo.pubkey = result;
+    }) ;
+    return basicInfo.pubkey ;
+}
 
 //ContractにbasicInfoを登録する
 //pkを使ってsendするバージョン
 async function registerBasicInfoToContract(contract,wallet,ipfsHash){
     const contractTxObj = contract.methods.createUser(ipfsHash) ;
+    await sendContractTxObjWithPK(contract,contractTxObj,wallet) ;
+}
+
+async function setPubkeyToBasicInfoContract(contract,wallet,pubkey){
+    const contractTxObj = contract.methods.createUser(pubkey) ;
     await sendContractTxObjWithPK(contract,contractTxObj,wallet) ;
 }
 
@@ -510,6 +579,77 @@ async function readJsonFromIpfs(hash){
 //IPFS Hash validate
 function validateForIpfsHash(ipfsHash){
     return ipfsHash.slice(0,2) == "Qm" && ipfsHash.length > 2;
+}
+
+//mysql connection
+function getUserMasterById(id,callback){
+    connection.query("select id,private_key from user_master where status = 0 and id = ?",[id],
+    function (error, results, fields) {
+        if (error) throw error;
+        callback(results[0]);
+    }) ;
+}
+
+//insert into user key master
+function insertUserKeyMaster(userId,recordId,salt,callback){
+    connection.query("insert into user_key_master (user_id,record_id,salt) values (?,?,?)",
+    [userId,recordId,salt],
+    function (error, results, fields) {
+        if (error) throw error;
+        callback(results);
+    }) ;
+}
+
+//get user key master record by ids
+function getUserKeyMasterByIds(userId,recordId,callback){
+    connection.query("select user_id,record_id,common_key where user_id = ? and record_id = ?",
+    [userId,recordId],
+    function (error, results, fields) {
+        if (error) throw error;
+        callback(results);
+    }) ;
+}
+
+function encryptoAes256Cbc(targetText,key){
+    const algorithm = 'aes-256-cbc';
+    const iv = "1234567890123456" ;
+
+    const cipher = crypto.createCipheriv(algorithm, key, iv);
+    var encrypted = cipher.update(targetText,"utf8","hex") ;
+    encrypted += cipher.final("hex") ;
+
+    return encrypted ;
+}
+
+function decryptoAes256Cbc(encrypted,key){
+    const algorithm = 'aes-256-cbc';
+    const iv = "1234567890123456" ;
+
+    const decipher = crypto.createDecipheriv(algorithm, key, iv);
+    var decrypted = decipher.update(encrypted,"hex","utf8") ;
+    decrypted += decipher.final("utf8") ;
+
+    return decrypted ;
+}
+
+function generateSalt(){
+    return crypto.randomBytes(24);
+}
+
+//aes256 key
+function generateAes256Key(password,salt){
+    
+    
+    //key length=32bytes
+    const keyLen = 32 ;
+
+    return crypto.scryptSync(password, salt, keyLen);
+}
+
+//sha256 password
+function generateSha256Password(password){
+    hash.update(password) ;
+    return hash.digest("utf8") ;
 }
 
 //日付format
