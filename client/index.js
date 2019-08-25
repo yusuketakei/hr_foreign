@@ -68,29 +68,31 @@ testCrypto() ;
 
 //暗号テスト
 async function testCrypto(){
-    const password = "password" ;
-    const testText =  JSON.stringify({ 
-        userAddress:"userAddress" ,
-        content1:"testtesttest" ,
-        content2:"testtesttestetestestes"
-    }) ;
-    //@note
-    //saltのみDBに保存し、passwordはユーザーから聞く
-    //ユーザーパスワード(本来はprivate keyで暗号化)->32bytes hash ->+salt -> common key
-    //これによりsaltを公開しても問題ない？
-    //common keyをprivate transactionで送る -> ×
-    //private transactionの場合、nodeの保有者に内容が漏れてしまう
-    //contract上に受け取り側のpublic keyを登録しておく
-    //送る側がそのpublic keyで暗号化したcommon keyをブロックチェーン経由で伝達
-    //private transactionである必要があるか？ 一旦public transaction前提で。
-    //受け取り側がリクエスト情報をBlockchainに書き込み -> 欲しい人のアドレスを特定しておき、addressを指定する
-    //指定されたaddressの人だけがレスポンスとしてcommon keyをupdateする
-    //addressを一回知ると、その後のその人の応募などがすべて筒抜けになってしまうのでは？
-    //->一旦、public keyで暗号化したcommon key をQRコードで表示して渡すようにする
-    //common key -> 相手のpublic keyで暗号化 -> jwtで署名
-    const wallet = new ethers.Wallet(getPrivateKeyByUserId(0),rpcProvider) ;
-    const signedPassword = await wallet.signMessage(password) ;
+    // const password = "password" ;
+    // const testText =  JSON.stringify({ 
+    //     userAddress:"userAddress" ,
+    //     content1:"testtesttest" ,
+    //     content2:"testtesttestetestestes"
+    // }) ;
+    // //@note
+    // //saltのみDBに保存し、passwordはユーザーから聞く
+    // //ユーザーパスワード(本来はprivate keyで暗号化)->32bytes hash ->+salt -> common key
+    // //これによりsaltを公開しても問題ない？
+    // //common keyをprivate transactionで送る -> ×
+    // //private transactionの場合、nodeの保有者に内容が漏れてしまう
+    // //contract上に受け取り側のpublic keyを登録しておく
+    // //送る側がそのpublic keyで暗号化したcommon keyをブロックチェーン経由で伝達
+    // //private transactionである必要があるか？ 一旦public transaction前提で。
+    // //受け取り側がリクエスト情報をBlockchainに書き込み -> 欲しい人のアドレスを特定しておき、addressを指定する
+    // //指定されたaddressの人だけがレスポンスとしてcommon keyをupdateする
+    // //addressを一回知ると、その後のその人の応募などがすべて筒抜けになってしまうのでは？
+    // //->一旦、public keyで暗号化したcommon key をQRコードで表示して渡すようにする
+    // //common key -> 相手のpublic keyで暗号化 -> jwtで署名
+    // const wallet = new ethers.Wallet(getPrivateKeyByUserId(0),rpcProvider) ;
+    // const signedPassword = await wallet.signMessage(password) ;
+    var signedPassword = "test" ;
     const sha256Password = generateSha256Password(signedPassword) ;
+    console.log(sha256Password) ;
     const salt = generateSalt() ;
     const key1 = generateAes256Key(sha256Password,salt) ;
     const encrypted = encryptoAes256Cbc(testText,key1) ;
